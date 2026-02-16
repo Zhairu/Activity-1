@@ -1,0 +1,95 @@
+import tkinter as tk
+from tkinter import messagebox
+
+board = {
+    "a1": " ", "a2": " ", "a3": " ",
+    "b1": " ", "b2": " ", "b3": " ",
+    "c1": " ", "c2": " ", "c3": " "
+}
+
+xturn = True
+game_end = False
+
+
+def click(pos):
+    global xturn, game_end
+
+    if game_end:
+        return
+
+    if board[pos] != " ":
+        return
+
+    if xturn:
+        board[pos] = "X"
+        buttons[pos]["text"] = "X"
+    else:
+        board[pos] = "O"
+        buttons[pos]["text"] = "O"
+
+    if check_winner():
+        game_end = True
+        return
+
+    xturn = not xturn
+
+
+def check_winner():
+    wins = [
+        ("a1","a2","a3"), ("b1","b2","b3"), ("c1","c2","c3"),
+        ("a1","b1","c1"), ("a2","b2","c2"), ("a3","b3","c3"),
+        ("a1","b2","c3"), ("a3","b2","c1")
+    ]
+
+    for x, y, z in wins:
+        if board[x] == board[y] == board[z] != " ":
+            messagebox.showinfo("Game Over", f"{board[x]} wins!")
+            return True
+
+    if all(board[p] != " " for p in board):
+        messagebox.showinfo("Game Over", "It's a tie!")
+        return True
+
+    return False
+
+
+def reset():
+    global xturn, game_end
+    xturn = True
+    game_end = False
+
+    for pos in board:
+        board[pos] = " "
+        buttons[pos]["text"] = ""
+
+
+root = tk.Tk()
+root.title("Tic-Tac-Toe")
+root.resizable(False, False)
+
+buttons = {}
+
+positions = [
+    ["a1","a2","a3"],
+    ["b1","b2","b3"],
+    ["c1","c2","c3"]
+]
+
+for r in range(3):
+    for c in range(3):
+        pos = positions[r][c]
+        btn = tk.Button(
+            root,
+            text="",
+            width=6,
+            height=3,
+            font=("Arial", 24),
+            command=lambda p=pos: click(p)
+        )
+        btn.grid(row=r, column=c)
+        buttons[pos] = btn
+
+reset_btn = tk.Button(root, text="Restart", font=("Arial", 14), command=reset)
+reset_btn.grid(row=3, column=0, columnspan=3, sticky="we")
+
+root.mainloop()
